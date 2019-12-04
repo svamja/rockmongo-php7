@@ -285,6 +285,40 @@ class BaseController extends RExtController {
 		return $logDir . DS . urlencode($this->_admin->username()) . "-query-" . urlencode($db) . "-" . urlencode($collection) . ".php";
 	}
 
+    protected function log($type, $input) {
+        $defaults = [];
+        $defaults['username'] = $this->_admin->username();
+        $input = array_merge($defaults, $input);
+        $logDir = dirname(__ROOT__) . DS . "logs";
+        if (is_writable($logDir)) {
+            $logFile = $logDir . DS . 'query.log';
+            $fp = fopen($logFile, "a+");
+            fputs($fp, date("Y-m-d H:i:s") . " $type " . json_encode($input) . PHP_EOL);
+            fclose($fp);
+        }
+    }
+
+    protected function logQuery($input) {
+        $command = $input['command'] ?? 'QUERY';
+        $this->log($command, $input);
+    }
+
+    protected function logUpdate($doc) {
+        $input = [];
+        $input['db'] = $this->db;
+        $input['collection'] = $this->collection;
+        $input['doc'] = $doc;
+        $this->log('UPDATE', $input);
+    }
+
+    protected function logDelete($id) {
+        $input = [];
+        $input['db'] = $this->db;
+        $input['collection'] = $this->collection;
+        $input['id'] = $id;
+        $this->log('DELETE', $input);
+    }
+
 	/**
 	 * remember data format choice
 	 *

@@ -102,23 +102,8 @@ class CollectionController extends BaseController {
 
 		//write query to log
 		$params = xn();
-		if ($this->_logQuery && count($params) > 3) {//not only "action", "db" and "collection"
-			$logDir = dirname(__ROOT__) . DS . "logs";
-			if (!empty($params["criteria"]) && strlen(trim($params["criteria"], "{} \t\n\r")) > 0) {
-				if (is_writable($logDir)) {
-					$logFile = $this->_logFile($this->db, $this->collection);
-					$fp = null;
-					if (!is_file($logFile)) {
-						$fp = fopen($logFile, "a+");
-						fwrite($fp, '<?php exit("Permission Denied"); ?>' . "\n");
-					}
-					else {
-						$fp = fopen($logFile, "a+");
-					}
-					fwrite($fp, date("Y-m-d H:i:s") . "\n" . var_export($params, true) . "\n================\n");
-					fclose($fp);
-				}
-			}
+        if ($this->_logQuery && count($params) > 3) {
+            $this->logQuery($params);
 		}
 
 		//information
@@ -535,6 +520,7 @@ class CollectionController extends BaseController {
 
 		import("lib.mongo.RQuery");
 		$query = new RQuery($this->_mongo, $this->db, $this->collection);
+        $this->logDelete(x("id"));
 		$ret = $query->id(rock_real_id(x("id")))->delete();
 
 		$this->redirectUrl(xn("uri"), true);
@@ -651,6 +637,8 @@ class CollectionController extends BaseController {
 				$this->display();
 				return;
 			}
+
+            $this->logUpdate($row);
 
 			$query = new RQuery($this->_mongo, $this->db, $this->collection);
 			$obj = $query->id($this->row["_id"])->find();

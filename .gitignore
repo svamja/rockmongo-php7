@@ -1,0 +1,8 @@
+# Sublime Files
+
+*.sublime-project
+*.sublime-workspace
+
+.control_users.php
+
+/logs/*

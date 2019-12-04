@@ -52,4 +52,8 @@ $MONGO["servers"][$i]["control_users"]["admin"] = "password";
 $i ++;
 **/
 
+if(file_exists('.control_users.php')) {
+    include_once('.control_users.php');
+}
+
 ?>
